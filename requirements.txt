@@ -1,0 +1,12 @@
+torch
+torchvision
+torchaudio
+transformers
+sentence-transformers
+tqdm
+fastapi[standard]
+gunicorn
+watchdog
+uv
+pdf2image
+aioredis
