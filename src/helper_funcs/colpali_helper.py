@@ -1,5 +1,4 @@
 import aioredis
-import asyncio
 import base64
 import pickle
 import torch
@@ -27,7 +26,6 @@ redis_url = "redis://localhost:6379"
 
 def indexing_func(dataset, batch_size=2):
     # Use tqdm to create a progress bar
-    points = []
     with tqdm(total=len(dataset), desc="Indexing Progress") as pbar:
         for i in range(0, len(dataset), batch_size):
             batch = dataset[i : i + batch_size]
@@ -39,8 +37,8 @@ def indexing_func(dataset, batch_size=2):
                 )
                 image_embeddings = colpali_model(**batch_images)
 
-            # # Prepare points for Qdrant
-            # points = []
+            # Prepare points for Qdrant
+            points = []
             for j, embedding in enumerate(image_embeddings):
                 # Convert the embedding to a list of vectors
                 multivector = embedding.cpu().float().numpy().tolist()
@@ -53,17 +51,17 @@ def indexing_func(dataset, batch_size=2):
                         },  # can also add other metadata/data
                     )
                 )
+
+            # Upload points to Qdrant
+            try:
+                upsert_to_qdrant(points)
+            except Exception as e:
+                print(f"Error during upsert: {e}")
+                continue
+
             # Update the progress bar
             pbar.update(batch_size)
-
-    # Upload points to Qdrant
-    try:
-        upsert_to_qdrant(points)
-        print("Indexing complete")
-    except Exception as e:
-        print(f"Error during upsert: {e}")
-                 
-    
+    print("Indexing complete")
 
 
 async def consume_images_from_queue(queue_name: str):
