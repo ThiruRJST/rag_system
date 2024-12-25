@@ -47,7 +47,8 @@ def indexing_func(dataset, batch_size=2):
                         id=i + j,  # we just use the index as the ID
                         vector=multivector,  # This is now a list of vectors
                         payload={
-                            "source": "company pdf file"
+                            "source": "company pdf file",
+                            "img_b64": base64.b64encode(batch[j]).decode("utf-8"),
                         },  # can also add other metadata/data
                     )
                 )
